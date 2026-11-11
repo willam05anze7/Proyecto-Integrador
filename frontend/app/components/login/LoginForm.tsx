@@ -4,7 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import GlobalCarLogo from "../brand/GlobalCarLogo";
 import type { LoginTheme } from "../../services/theme.service";
-import { login } from "../../services/auth.service";
+import { login, register } from "../../services/auth.service";
 
 type LoginFormProps = {
   theme: LoginTheme;
@@ -40,6 +40,7 @@ function VisibilityIcon() {
 export default function LoginForm({ theme }: LoginFormProps) {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
   const [remember, setRemember] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -54,7 +55,17 @@ export default function LoginForm({ theme }: LoginFormProps) {
     const password = String(formData.get("password") ?? "");
 
     try {
-      await login({ username, password, rememberMe: remember });
+      if (isRegistering) {
+        const name = String(formData.get("fullName") ?? "").trim();
+        const confirmation = String(formData.get("confirmPassword") ?? "");
+        if (password !== confirmation) {
+          setErrorMessage("Las contraseñas no coinciden.");
+          return;
+        }
+        await register({ nombre: name, usuario: username, password });
+      } else {
+        await login({ username, password, rememberMe: remember });
+      }
       router.replace("/catalogo");
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "No se pudo iniciar sesión.");
@@ -64,17 +75,24 @@ export default function LoginForm({ theme }: LoginFormProps) {
   }
 
   return (
-    <section className="form-panel" aria-labelledby="login-title">
+    <section className={`form-panel${isRegistering ? " is-registering" : ""}`} aria-labelledby="login-title">
       <div className="form-heading">
         <div className="mini-mark">
           <GlobalCarLogo theme={theme} className="global-car-logo" />
         </div>
-        <div className="eyebrow">BIENVENIDO DE NUEVO</div>
-        <h2 id="login-title">Inicia sesión</h2>
-        <p>Ingresa a tu cuenta para continuar.</p>
+        <div className="eyebrow">{isRegistering ? "ÚNETE A GLOBAL CAR" : "BIENVENIDO DE NUEVO"}</div>
+        <h2 id="login-title">{isRegistering ? "Crear cuenta" : "Inicia sesión"}</h2>
+        <p>{isRegistering ? "Regístrate para explorar nuestro catálogo." : "Ingresa a tu cuenta para continuar."}</p>
       </div>
 
       <form onSubmit={handleSubmit}>
+        {isRegistering && <>
+          <label htmlFor="fullName">NOMBRE COMPLETO</label>
+          <div className="input-wrap">
+            <UserIcon />
+            <input id="fullName" name="fullName" type="text" placeholder="Tu nombre y apellido" autoComplete="name" maxLength={150} required />
+          </div>
+        </>}
         <label htmlFor="username">USUARIO</label>
         <div className="input-wrap">
           <UserIcon />
@@ -84,13 +102,15 @@ export default function LoginForm({ theme }: LoginFormProps) {
             type="text"
             placeholder="Ingresa tu usuario"
             autoComplete="username"
+            minLength={isRegistering ? 3 : undefined}
+            maxLength={100}
             required
           />
         </div>
 
         <div className="label-row">
           <label htmlFor="password">CONTRASEÑA</label>
-          <a href="#recuperar">¿Olvidaste tu contraseña?</a>
+          {!isRegistering && <a href="#recuperar">¿Olvidaste tu contraseña?</a>}
         </div>
         <div className="input-wrap">
           <LockIcon />
@@ -99,7 +119,9 @@ export default function LoginForm({ theme }: LoginFormProps) {
             name="password"
             type={showPassword ? "text" : "password"}
             placeholder="••••••••••"
-            autoComplete="current-password"
+            autoComplete={isRegistering ? "new-password" : "current-password"}
+            minLength={isRegistering ? 8 : undefined}
+            maxLength={128}
             required
           />
           <button
@@ -112,7 +134,16 @@ export default function LoginForm({ theme }: LoginFormProps) {
           </button>
         </div>
 
-        <div className="form-options">
+        {isRegistering && <>
+          <label htmlFor="confirmPassword">CONFIRMAR CONTRASEÑA</label>
+          <div className="input-wrap">
+            <LockIcon />
+            <input id="confirmPassword" name="confirmPassword" type={showPassword ? "text" : "password"} placeholder="Repite tu contraseña" autoComplete="new-password" minLength={8} maxLength={128} required />
+          </div>
+          <p className="gc-register-hint">Mínimo 8 caracteres. Tu cuenta se creará como cliente.</p>
+        </>}
+
+        {!isRegistering && <div className="form-options">
           <label className="remember">
             <input
               type="checkbox"
@@ -122,16 +153,16 @@ export default function LoginForm({ theme }: LoginFormProps) {
             <span className="checkmark">✓</span>
             Recordarme
           </label>
-        </div>
+        </div>}
 
         {errorMessage && <p className="login-error" role="alert">{errorMessage}</p>}
         <button className="submit-button" type="submit" disabled={isSubmitting} aria-busy={isSubmitting}>
-          {isSubmitting ? "VALIDANDO..." : "ACCEDER A MI CUENTA"} {!isSubmitting && <span>→</span>}
+          {isSubmitting ? (isRegistering ? "CREANDO CUENTA..." : "VALIDANDO...") : (isRegistering ? "CREAR MI CUENTA" : "ACCEDER A MI CUENTA")} {!isSubmitting && <span>→</span>}
         </button>
       </form>
 
       <div className="signup">
-        ¿Aún no tienes una cuenta? <a href="#crear-cuenta">Crear cuenta <span>↗</span></a>
+        {isRegistering ? "¿Ya tienes una cuenta?" : "¿Aún no tienes una cuenta?"} <button type="button" onClick={() => { setIsRegistering((value) => !value); setErrorMessage(null); }}>{isRegistering ? "Iniciar sesión" : "Crear cuenta"} <span>↗</span></button>
       </div>
       <div className="secure-note">
         <svg viewBox="0 0 16 16" aria-hidden="true">

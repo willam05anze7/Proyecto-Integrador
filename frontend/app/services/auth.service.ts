@@ -108,6 +108,17 @@ export async function login(credentials: LoginCredentials): Promise<UserProfile>
   return payload.user;
 }
 
+export async function register(account: { nombre: string; usuario: string; password: string }): Promise<UserProfile> {
+  const payload = await requestApi("/auth/register", {
+    method: "POST",
+    body: JSON.stringify(account),
+  });
+  if (typeof payload !== "object" || payload === null || !("user" in payload) || !isUserProfile(payload.user)) {
+    throw new AuthApiError("El backend no devolvió un perfil de usuario válido.", 502);
+  }
+  return payload.user;
+}
+
 export async function getCurrentUser(): Promise<UserProfile> {
   const payload = await requestApi("/auth/me", { method: "GET" });
   if (!isUserProfile(payload)) {

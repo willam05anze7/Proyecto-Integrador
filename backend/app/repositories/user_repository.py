@@ -38,6 +38,42 @@ class UserRepository:
             "id_usuario", user_id
         ).execute()
 
+    def create_customer(self, nombre: str, usuario: str, password_hash: str) -> UserRecord:
+        role_result = (
+            self.client.table("rol")
+            .select("id_rol")
+            .ilike("nombre", "cliente")
+            .limit(1)
+            .execute()
+        )
+        branch_result = (
+            self.client.table("sucursal")
+            .select("id_sucursal")
+            .order("id_sucursal")
+            .limit(1)
+            .execute()
+        )
+        if not role_result.data:
+            raise RegistrationSetupError("No existe un rol Cliente en la base de datos.")
+        if not branch_result.data:
+            raise RegistrationSetupError("No existe una sucursal para asignar a la cuenta.")
+
+        result = self.client.table("usuario").insert(
+            {
+                "nombre": nombre,
+                "usuario": usuario,
+                "password": password_hash,
+                "id_rol": int(role_result.data[0]["id_rol"]),
+                "id_sucursal": int(branch_result.data[0]["id_sucursal"]),
+            }
+        ).execute()
+        if result.data:
+            return self._to_user_record(result.data[0])
+        user = self.find_by_username(usuario)
+        if user is None:
+            raise RuntimeError("No se pudo recuperar la cuenta recién creada.")
+        return user
+
     def get_profile(self, user: UserRecord) -> UserProfile:
         role_result = (
             self.client.table("rol")
@@ -84,4 +120,8 @@ class UserRepository:
 
 
 class UserRelationNotFoundError(Exception):
+    pass
+
+
+class RegistrationSetupError(Exception):
     pass

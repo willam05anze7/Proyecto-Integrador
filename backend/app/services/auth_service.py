@@ -2,12 +2,16 @@ import logging
 
 from app.core.security import hash_password, verify_password
 from app.models.user import UserProfile
-from app.repositories.user_repository import UserRepository
+from app.repositories.user_repository import RegistrationSetupError, UserRepository
 
 logger = logging.getLogger(__name__)
 
 
 class InvalidCredentialsError(Exception):
+    pass
+
+
+class UsernameAlreadyExistsError(Exception):
     pass
 
 
@@ -28,6 +32,12 @@ class AuthService:
             self.users.update_password(user.id_usuario, hash_password(password))
             logger.info("Migrated legacy password to a secure hash for user id %s", user.id_usuario)
 
+        return user.id_usuario, self.users.get_profile(user)
+
+    def register(self, nombre: str, username: str, password: str) -> tuple[int, UserProfile]:
+        if self.users.find_by_username(username) is not None:
+            raise UsernameAlreadyExistsError
+        user = self.users.create_customer(nombre, username, hash_password(password))
         return user.id_usuario, self.users.get_profile(user)
 
     def get_profile(self, user_id: int) -> UserProfile:

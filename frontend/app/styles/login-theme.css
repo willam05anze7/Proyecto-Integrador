@@ -241,6 +241,23 @@
   color: var(--gold-bright);
 }
 
+.login-page .signup button {
+  margin-left: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--gold-bright);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-page .signup button:hover { color: var(--gold); }
+.login-page .signup button:focus-visible { outline: 2px solid var(--gold-bright); outline-offset: 3px; }
+.login-page .gc-register-hint { margin: -13px 0 18px; color: var(--text-muted); font-size: 10px; }
+.login-page .is-registering .form-heading { margin-bottom: 20px; }
+.login-page .is-registering .input-wrap { margin-bottom: 16px; }
+
 .login-page .remember {
   color: var(--text-soft);
 }

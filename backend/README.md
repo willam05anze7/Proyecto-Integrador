@@ -19,6 +19,7 @@ Instala las dependencias con `python -m pip install -r requirements.txt` dentro 
 ## Login
 
 - `POST /api/v1/auth/login`: recibe `usuario`, `password` y `remember_me`; establece una cookie de sesión `HttpOnly` y devuelve el perfil sin la contraseña.
+- `POST /api/v1/auth/register`: recibe nombre, usuario y contraseña, crea el perfil con rol `Cliente` y la primera sucursal disponible, y abre una sesión `HttpOnly`. Debe existir ese rol y al menos una sucursal.
 - `GET /api/v1/auth/me`: devuelve el perfil asociado a la cookie.
 - `POST /api/v1/auth/logout`: elimina la cookie de sesión.
 - `GET /health`: comprobación básica de la API.
@@ -31,7 +32,7 @@ El menú **Usuarios** y sus endpoints están disponibles únicamente para una cu
 - `GET /api/v1/users`: lista usuarios sin exponer contraseñas.
 - `POST /api/v1/users`: crea un usuario con nombre, usuario, contraseña, rol y sucursal. La contraseña nueva se guarda con hash PBKDF2.
 
-La creación requiere las tablas existentes `usuario`, `rol` y `sucursal`, y las columnas ya usadas por el login.
+El registro público y la creación administrativa requieren las tablas existentes `usuario`, `rol` y `sucursal`, y las columnas ya usadas por el login.
 
 ## Catálogo de vehículos
 

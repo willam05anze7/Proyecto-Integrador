@@ -17,6 +17,20 @@ class LoginRequest(BaseModel):
         return value
 
 
+class RegisterRequest(BaseModel):
+    nombre: str = Field(min_length=1, max_length=150)
+    usuario: str = Field(min_length=3, max_length=100)
+    password: str = Field(min_length=8, max_length=128)
+
+    @field_validator("nombre", "usuario")
+    @classmethod
+    def registration_text_must_not_be_blank(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("Este campo es obligatorio.")
+        return value
+
+
 class LoginResponse(BaseModel):
     user: UserProfileResponse
 
