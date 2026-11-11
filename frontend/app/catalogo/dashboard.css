@@ -1,4 +1,24 @@
 .gc-app{--gc-gold:#D4AF37;--gc-silver:#C0C0C0;--gc-dark:#1E1E1E;--gc-muted:#92928c;--gc-white:#F2F1ED;min-height:100vh;background:#191a19;color:var(--gc-white);font-family:'DM Sans',Arial,sans-serif}
+.gc-vehicle-search{max-width:520px}
+.gc-vehicle-search>label{display:block;margin-bottom:9px;color:#c5c3bb;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.gc-vehicle-search-field{display:flex;align-items:center;gap:11px;min-height:48px;padding:0 14px;border:1px solid rgba(192,192,192,.2);border-radius:8px;background:#222320;transition:border-color .2s}
+.gc-vehicle-search-field:focus-within{border-color:var(--gc-gold)}
+.gc-vehicle-search-field svg{width:18px;height:18px;flex:none;fill:none;stroke:#aaa9a1;stroke-linecap:round;stroke-width:1.7}
+.gc-vehicle-search-field input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:var(--gc-white);font:inherit;font-size:13px}
+.gc-vehicle-search-field input::placeholder{color:#777770}
+.gc-vehicle-search-field input::-webkit-search-cancel-button{display:none}
+.gc-vehicle-search-field button{flex:none;border:0;background:transparent;color:var(--gc-gold);font:inherit;font-size:11px;cursor:pointer}
+.gc-vehicle-search-field button:focus-visible{outline:2px solid var(--gc-gold);outline-offset:3px}
+.gc-vehicle-filters{display:flex;align-items:flex-start;gap:14px;color:#c5c3bb;font-size:10px}
+.gc-vehicle-filters>span{padding-top:8px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.gc-vehicle-filters>div{display:flex;flex-wrap:wrap;gap:7px}
+.gc-vehicle-filters button{padding:7px 11px;border:1px solid rgba(192,192,192,.2);border-radius:20px;background:#222320;color:#c5c3bb;font:inherit;cursor:pointer;transition:border-color .2s,color .2s,background .2s}
+.gc-vehicle-filters button:hover,.gc-vehicle-filters button.is-active{border-color:var(--gc-gold);background:rgba(212,175,55,.1);color:#e4cb72}
+.gc-vehicle-filters button:focus-visible{outline:2px solid var(--gc-gold);outline-offset:2px}
+.gc-vehicle-empty{padding:24px;border:1px solid rgba(192,192,192,.14);border-radius:10px;background:#222320;color:#c5c3bb;font-size:13px;line-height:1.6}
+.gc-vehicle-empty button{display:block;margin-top:12px;padding:0;border:0;background:transparent;color:var(--gc-gold);font:inherit;font-size:11px;cursor:pointer}
+.gc-vehicle-empty button:focus-visible{outline:2px solid var(--gc-gold);outline-offset:3px}
+.gc-vehicle-fuel{margin:-8px 0 15px;color:#a6a59d;font-size:10px}
 .gc-sidebar{width:274px;flex:none;display:flex;flex-direction:column;padding:28px 17px 19px;background:linear-gradient(180deg,#202120,#1c1d1c);border-right:1px solid rgba(192,192,192,.1)}
 .gc-brand{height:54px;display:flex;align-items:center;gap:9px;padding:0 8px;color:#e8e7e2;font-family:Manrope,Arial,sans-serif;font-size:15px;font-weight:800;letter-spacing:.14em}.gc-sidebar-logo{width:53px;height:40px;object-fit:contain;flex:none}
 .gc-brand b{color:var(--gc-gold)}.gc-brand small{display:block;color:#82827d;font-family:'DM Sans',Arial,sans-serif;font-size:7px;letter-spacing:.25em;font-weight:500;margin-top:5px}

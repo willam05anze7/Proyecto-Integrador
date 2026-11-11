@@ -1,9 +1,12 @@
+export type FuelType = "Gasolina" | "Diésel" | "Híbrido" | "Eléctrico";
+
 export type Vehicle = {
   id: string;
   brand: string;
   model: string;
   year: number;
   type: string;
+  fuelType: FuelType | null;
   image: string;
   isFleetVehicle?: boolean;
 };
@@ -27,6 +30,7 @@ export const vehicles: Vehicle[] = [
     model: "Corolla",
     year: 2022,
     type: "Sedán",
+    fuelType: null,
     image: "https://images.unsplash.com/photo-1623869675781-80aa31012a5a?auto=format&fit=crop&w=1200&q=85",
   },
   {
@@ -35,6 +39,7 @@ export const vehicles: Vehicle[] = [
     model: "RAV4",
     year: 2023,
     type: "SUV",
+    fuelType: null,
     image: "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=1200&q=85",
   },
   {
@@ -43,6 +48,7 @@ export const vehicles: Vehicle[] = [
     model: "Civic",
     year: 2021,
     type: "Sedán",
+    fuelType: null,
     image: "https://images.unsplash.com/photo-1590362891991-f776e747a588?auto=format&fit=crop&w=1200&q=85",
   },
   {
@@ -51,6 +57,7 @@ export const vehicles: Vehicle[] = [
     model: "X-Trail",
     year: 2024,
     type: "SUV",
+    fuelType: null,
     image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1200&q=85",
   },
 ];

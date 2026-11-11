@@ -75,9 +75,18 @@ function vehicleForSelection(vehicle: FleetVehicle): Vehicle {
     model: vehicle.modelo,
     year: vehicle.anio ?? 0,
     type: vehicle.categoria,
+    fuelType: null,
     image: vehicle.imagen_url ?? "",
     isFleetVehicle: true,
   };
+}
+
+function normalizeSearchText(value: string) {
+  return value
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase();
 }
 
 function errorText(error: unknown): string {
@@ -91,6 +100,8 @@ export default function VehicleCatalog({
   canManage,
 }: VehicleCatalogProps) {
   const [vehicles, setVehicles] = useState<FleetVehicle[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -102,6 +113,21 @@ export default function VehicleCatalog({
   const [deletingPlate, setDeletingPlate] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  const vehicleCategories = Array.from(
+    new Set(vehicles.map((vehicle) => vehicle.categoria.trim()).filter(Boolean)),
+  ).sort((first, second) => first.localeCompare(second, "es"));
+  const normalizedQuery = normalizeSearchText(searchQuery);
+  const filteredVehicles = vehicles.filter((vehicle) => {
+    const searchableText = normalizeSearchText(
+      `${vehicle.placa} ${vehicle.marca} ${vehicle.modelo} ${vehicle.anio ?? ""} ${vehicle.categoria} ${vehicle.color ?? ""} ${vehicle.estado ?? ""} ${vehicle.sucursal}`,
+    );
+
+    return (
+      searchableText.includes(normalizedQuery) &&
+      (selectedCategory === null || vehicle.categoria === selectedCategory)
+    );
+  });
 
   const loadVehicles = useCallback(async () => {
     setError(null);
@@ -217,7 +243,11 @@ export default function VehicleCatalog({
           <h2>Catálogo de automóviles</h2>
           <p>Consulta los vehículos registrados y su estado operativo.</p>
         </div>
-        <span className="gc-count-badge">{vehicles.length} VEHÍCULOS</span>
+        <span className="gc-count-badge">
+          {filteredVehicles.length === vehicles.length
+            ? `${vehicles.length} VEHÍCULOS`
+            : `${filteredVehicles.length} DE ${vehicles.length} VEHÍCULOS`}
+        </span>
       </div>
 
       {canManage && (
@@ -232,6 +262,54 @@ export default function VehicleCatalog({
 
       {error && <p className="gc-user-feedback is-error" role="alert">{error}</p>}
       {success && <p className="gc-user-feedback is-success" role="status">{success}</p>}
+
+      {vehicles.length > 0 && (
+        <>
+          <div className="gc-vehicle-search">
+            <label htmlFor="gc-vehicle-search-input">Buscar vehículo</label>
+            <div className="gc-vehicle-search-field">
+              <input
+                id="gc-vehicle-search-input"
+                type="search"
+                placeholder="Marca, modelo, placa o año"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+              />
+              {searchQuery && (
+                <button type="button" onClick={() => setSearchQuery("")}>
+                  Limpiar
+                </button>
+              )}
+            </div>
+          </div>
+          {vehicleCategories.length > 1 && (
+            <div className="gc-vehicle-filters" role="group" aria-label="Filtrar por categoría">
+              <span>Tipo</span>
+              <div>
+                <button
+                  type="button"
+                  className={selectedCategory === null ? "is-active" : ""}
+                  aria-pressed={selectedCategory === null}
+                  onClick={() => setSelectedCategory(null)}
+                >
+                  Todos
+                </button>
+                {vehicleCategories.map((category) => (
+                  <button
+                    type="button"
+                    key={category}
+                    className={selectedCategory === category ? "is-active" : ""}
+                    aria-pressed={selectedCategory === category}
+                    onClick={() => setSelectedCategory(category)}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
 
       {canManage && isFormOpen && (
         <section className="gc-panel-card gc-vehicle-form-card">
@@ -334,9 +412,16 @@ export default function VehicleCatalog({
           <p>{canManage ? "Registra el primer vehículo para que aparezca en este catálogo." : "Solicita al administrador que registre vehículos."}</p>
           {canManage && <button className="gc-gold-button" type="button" onClick={startCreate}>REGISTRAR VEHÍCULO <span>+</span></button>}
         </section>
+      ) : filteredVehicles.length === 0 ? (
+        <div className="gc-vehicle-empty" role="status">
+          No encontramos vehículos con esos criterios. Ajusta la búsqueda o selecciona todas las categorías.
+          <button type="button" onClick={() => { setSearchQuery(""); setSelectedCategory(null); }}>
+            Limpiar filtros
+          </button>
+        </div>
       ) : (
         <div className="gc-vehicle-grid">
-          {vehicles.map((vehicle) => (
+          {filteredVehicles.map((vehicle) => (
             <article
               className={`gc-vehicle-card${selectedVehicleId === vehicle.placa ? " is-selected" : ""}`}
               key={vehicle.placa}
